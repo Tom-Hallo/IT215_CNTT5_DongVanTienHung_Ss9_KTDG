@@ -35,8 +35,7 @@ def response_handler(code: int, message: str, data: Any = None, error: str = Non
     }
 
 @app.exception_handler(HTTPException)
-async def custom_http_exception_handler(request: Request, exc: HTTPException):
-    # Lấy thông báo lỗi được truyền qua biến detail
+def custom_http_exception_handler(request: Request, exc: HTTPException):
     error_msg = None
     
     if exc.status_code == 400:
@@ -59,7 +58,7 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
 
 
 @app.get("/flights", tags=["Flights"], response_model=APIResponse)
-async def show_flights(request: Request, status: str | None = None):
+def show_flights(request: Request, status: str | None = None):
     if status:
         filtered_flights = [f for f in flights_db if f["status"].lower() == status.lower()]
     else:
@@ -73,7 +72,7 @@ async def show_flights(request: Request, status: str | None = None):
     )
 
 @app.post("/flights", tags=["Flights"], response_model=APIResponse, status_code=status.HTTP_201_CREATED)
-async def add_new_flight(request: Request, flight_request: FlightInformation):
+def add_new_flight(request: Request, flight_request: FlightInformation):
     is_duplicate = any(f["flight_number"].lower() == flight_request.flight_number.lower() for f in flights_db)
     if is_duplicate:
         raise HTTPException(
@@ -102,7 +101,7 @@ async def add_new_flight(request: Request, flight_request: FlightInformation):
     )
 
 @app.delete("/flights/{flight_id}", tags=["Flights"], response_model=APIResponse)
-async def delete_flight(flight_id: int, request: Request):
+def delete_flight(flight_id: int, request: Request):
     found_flight = next((flight for flight in flights_db if flight["id"] == flight_id), None)
 
     if not found_flight:
